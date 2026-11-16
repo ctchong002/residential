@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>TPG 柔佛住宅配对 Residential Finder</title>
+<meta name="description" content="柔佛新山住宅盘源搜索：公寓、排屋、半独立、独立洋房（出售 / 出租） Johor Bahru residential listings">
+<meta name="theme-color" content="#0b5d4b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="住宅配对">
+<style>
+:root{--b:#0b5d4b;--y:#f5b700;--bg:#f2f5f4;--c:#fff;--t:#1b2430;--m:#5d6b7c;--l:#dde3ea;--g:#128c4a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--t)}
+header{background:var(--b);color:#fff;padding:12px 14px 10px;padding-top:max(12px,env(safe-area-inset-top))}
+header h1{margin:0;font-size:19px;line-height:1.25}
+header .sub{font-size:13px;opacity:.85;margin-top:3px}
+.bar{position:sticky;top:0;z-index:5;background:var(--b);padding:0 10px 10px;display:flex;gap:8px}
+.bar input{flex:1;min-width:0;font-size:16px;padding:11px 12px;border-radius:10px;border:0}
+.bar button{font-size:15px;padding:0 14px;border-radius:10px;border:0;background:var(--y);color:#222;font-weight:700;white-space:nowrap}
+#panel{background:var(--c);border-bottom:1px solid var(--l);padding:6px 12px 12px}
+#panel.hide{display:none}
+.row{margin-top:10px}
+.lab{font-size:13px;color:var(--m);margin-bottom:5px;font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{border:1px solid var(--l);background:#f8fafc;border-radius:20px;padding:8px 12px;font-size:15px;min-height:40px;color:var(--t)}
+.chip.on{background:var(--b);color:#fff;border-color:var(--b)}
+.seg{display:flex;border:1px solid var(--b);border-radius:10px;overflow:hidden}
+.seg button{flex:1;border:0;background:#fff;padding:10px 0;font-size:16px;color:var(--b);min-height:44px}
+.seg button.on{background:var(--b);color:#fff;font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.f{display:flex;flex-direction:column}
+.f span{font-size:12px;color:var(--m);margin-bottom:3px}
+.f input,.f select{font-size:16px;padding:9px 10px;border:1px solid var(--l);border-radius:9px;background:#fff;min-height:44px;width:100%}
+.acts{display:flex;gap:8px;margin-top:14px}
+.acts button{flex:1;min-height:46px;font-size:16px;border-radius:10px;border:1px solid var(--b);background:#fff;color:var(--b)}
+.acts button.pri{background:var(--b);color:#fff;font-weight:700}
+#info{padding:10px 14px 4px;font-size:14px;color:var(--m);display:flex;justify-content:space-between;align-items:center;gap:8px}
+#info select{font-size:15px;padding:6px;border-radius:8px;border:1px solid var(--l);background:#fff}
+#list{padding:4px 10px 30px}
+.card{background:var(--c);border-radius:12px;padding:12px 13px;margin:9px 0;box-shadow:0 1px 2px rgba(0,0,0,.06);border:1px solid #e8edf2}
+.card h3{margin:0 0 5px;font-size:16.5px;line-height:1.35}
+.tag{display:inline-block;font-size:12px;font-weight:700;border-radius:6px;padding:1px 7px;margin-right:6px;vertical-align:2px;color:#fff}
+.tS{background:#c0392b}.tR{background:#2471a3}.tB{background:#7d3c98}
+.spec{font-size:14.5px;color:#26313d;margin:3px 0}
+.price{font-weight:700;color:#a3360b;font-size:16px;margin:4px 0}
+.price small{color:var(--m);font-weight:400;font-size:13px}
+.ag{margin:7px 0 2px;font-size:15px}
+.ag a,.also a{color:var(--g);font-weight:700;text-decoration:none;padding:3px 0;display:inline-block}
+.small{font-size:13px;color:var(--m)}
+.also{font-size:13.5px;margin-top:4px;color:#33404d}
+.also summary{cursor:pointer;color:var(--m)}
+.also div{padding:2px 0}
+.rawb{margin-top:6px;border:0;background:none;color:var(--b);font-size:14px;padding:6px 0;text-decoration:underline}
+.raw{white-space:pre-wrap;font-size:13.5px;background:#f7f9fa;border-radius:8px;padding:8px;margin-top:6px;max-height:420px;overflow:auto;word-break:break-word}
+#more{display:block;margin:10px auto 0;min-height:46px;padding:0 26px;font-size:16px;border-radius:10px;border:1px solid var(--b);background:#fff;color:var(--b)}
+footer{font-size:12.5px;color:var(--m);padding:6px 16px 40px;line-height:1.6}
+.empty{text-align:center;color:var(--m);padding:40px 10px}
+@media(min-width:760px){#list,#panel,#info,footer{max-width:760px;margin-left:auto;margin-right:auto}.bar{justify-content:center}.bar input{max-width:600px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>TPG 柔佛住宅配对 Residential Finder</h1>
+  <div class="sub" id="sub">新山住宅盘源 · 出售 / 出租 · 去重整理</div>
+</header>
+<div class="bar">
+  <input id="q" type="search" placeholder="项目 / 地区 / 路名 Project, area… 例: mount austin" autocomplete="off">
+  <button id="tog">筛选 ▾</button>
+</div>
+<div id="panel" class="hide">
+  <div class="row"><div class="seg" id="sr"><button data-v="" class="on">全部 All</button><button data-v="S">出售 Sale</button><button data-v="R">出租 Rent</button></div></div>
+  <div class="row"><div class="lab">类型 Type</div><div class="chips" id="types">
+    <button class="chip" data-v="hr">高楼(全部) Highrise</button>
+    <button class="chip" data-v="condo">公寓 Condo / Service Apt</button>
+    <button class="chip" data-v="flat">组屋 Flat / Apt</button>
+    <button class="chip" data-v="ld">有地(全部) Landed</button>
+    <button class="chip" data-v="terrace">排屋 Terrace</button>
+    <button class="chip" data-v="cluster">田字 Cluster</button>
+    <button class="chip" data-v="semi">半独立 Semi-D</button>
+    <button class="chip" data-v="bung">独立 Bungalow</button>
+    <button class="chip" data-v="town">Townhouse</button>
+    <button class="chip" data-v="room">房间 Room</button>
+  </div></div>
+  <div class="row grid">
+    <label class="f"><span>地区 Area</span><select id="area"><option value="">全部 All</option></select></label>
+    <label class="f"><span>层数 Storeys (landed)</span><select id="sty"><option value="">不限 Any</option><option>1</option><option>1.5</option><option>2</option><option>2.5</option><option>3</option><option>3.5</option><option>4</option></select></label>
+    <label class="f"><span>最少房间 Min beds</span><select id="beds"><option value="">不限 Any</option><option value="0">Studio+</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
+    <label class="f"><span>最少厕所 Min baths</span><select id="baths"><option value="">不限 Any</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label>
+    <label class="f"><span>最小屋身 Min build-up (sqft)</span><input id="bu" inputmode="numeric" placeholder="例 1000"></label>
+    <label class="f"><span>最小土地 Min land (sqft)</span><input id="land" inputmode="numeric" placeholder="例 1400 (20x70)"></label>
+    <label class="f"><span id="pminl">最低价 Min price (RM)</span><input id="pmin" inputmode="decimal" placeholder="例 300k"></label>
+    <label class="f"><span id="pmaxl">最高价 Max price (RM)</span><input id="pmax" inputmode="decimal" placeholder="例 800k / 1.2m / 2000"></label>
+    <label class="f"><span>家私 Furnishing</span><select id="furn"><option value="">不限 Any</option><option value="F">全家私 Fully</option><option value="P">半家私 Partly</option><option value="B">空屋 Bare</option></select></label>
+    <label class="f"><span>地契 Tenure</span><select id="ten"><option value="">不限 Any</option><option value="FH">永久 Freehold</option><option value="LH">租赁 Leasehold</option></select></label>
+    <label class="f"><span>土著 Bumi</span><select id="bumi"><option value="">不限 Any</option><option value="N">非土著 Non-Bumi / Intl</option><option value="B">土著 Bumi lot</option></select></label>
+    <label class="f"><span>群组 Source group</span><select id="grp"><option value="">全部 All</option></select></label>
+  </div>
+  <div class="acts"><button id="reset">重置 Reset</button><button id="go" class="pri">搜索 Search</button></div>
+</div>
+<div id="info"><span id="cnt">载入中 Loading…</span>
+  <select id="sort"><option value="p">价格 低→高</option><option value="pd">价格 高→低</option><option value="n">最新 Newest</option><option value="psf">psf 低→高</option><option value="bu">屋身 大→小</option><option value="ld">土地 大→小</option></select></div>
+<div id="list"></div>
+<footer id="foot"></footer>
+<script src="data.js"></script>
+<script>
+(function(){
+var D=window.RES,L=D.L,$=function(i){return document.getElementById(i)},tmr,shown=0,res=[];
+var BASE=Date.UTC(2026,0,1);
+function dstr(d){var x=new Date(BASE+d*864e5);return x.getUTCDate()+"/"+(x.getUTCMonth()+1)+"/"+String(x.getUTCFullYear()).slice(2)}
+var TY=D.types,HR={0:1,1:1,2:1,3:1,4:1,5:1,6:1},TZH={"condo":"公寓 Condo","serviced apartment":"服务式公寓 Serviced Apt","apartment":"Apartment","flat":"组屋 Flat","penthouse":"Penthouse","duplex/loft":"Duplex/Loft","highrise (unspecified)":"高楼 Highrise","terrace":"排屋 Terrace","cluster":"田字 Cluster","semi-D":"半独立 Semi-D","bungalow":"独立 Bungalow","townhouse":"Townhouse","residential land":"住宅地 Res. land","room":"房间 Room","":"住宅"};
+D.areas.forEach(function(a,i){var o=document.createElement("option");o.value=i;o.textContent=a;$("area").appendChild(o)});
+D.groups.forEach(function(g,i){var o=document.createElement("option");o.value=i;o.textContent=g;$("grp").appendChild(o)});
+$("sub").textContent="新山住宅盘源 · "+D.meta.n.toLocaleString()+" 个单位(已去重) · "+D.meta.since.split("-").reverse().join("/")+" – "+(D.meta.last||"").split("-").reverse().join("/");
+$("foot").innerHTML="资料来源 Source: 合作群 WhatsApp co-broke groups ("+D.groups.join(", ")+")，"+D.meta.since+" 至 "+D.meta.last+"。95% 相同的单位已合并，显示最早发布的 agent，其余列在「也有发 Also posted by」。价格 / 资料以 agent 原文为准，请直接联系 agent 确认。 Prices &amp; details as posted by agents — please verify with the agent. 更新 Updated: "+D.meta.updated+" · The Roof Realty / The Pillars Group";
+function money(s){if(!s)return 0;s=String(s).toLowerCase().replace(/[,rm\s]/g,"");var m=s.match(/^([\d.]+)(k|m|mil|万)?$/);if(!m)return 0;var v=parseFloat(m[1]);return m[2]==="k"?v*1e3:(m[2]==="m"||m[2]==="mil")?v*1e6:m[2]==="万"?v*1e4:v}
+function on(id){return [].filter.call($(id).children,function(c){return c.classList.contains("on")}).map(function(c){return c.dataset.v})}
+function typeOk(r,ts){if(!ts.length)return true;var t=TY[r[2]];for(var i=0;i<ts.length;i++){var v=ts[i];
+  if(v==="hr"&&HR[r[2]])return true;if(v==="condo"&&/condo|serviced|penthouse|duplex|highrise|^apartment/.test(t))return true;if(v==="flat"&&(t==="flat"||t==="apartment"))return true;
+  if(v==="ld"&&/terrace|cluster|semi|bungalow|townhouse|land/.test(t))return true;if(v==="terrace"&&t==="terrace")return true;if(v==="cluster"&&t==="cluster")return true;
+  if(v==="semi"&&t==="semi-D")return true;if(v==="bung"&&t==="bungalow")return true;if(v==="town"&&t==="townhouse")return true;if(v==="room"&&t==="room")return true}return false}
+function price(r,sr){return sr==="R"?r[15]:sr==="S"?r[14]:(r[14]||r[15])}
+function run(){
+  var q=$("q").value.trim().toLowerCase(),words=q?q.split(/\s+/):[],sr=on("sr")[0]||"",ts=on("types"),ar=$("area").value,sty=parseFloat($("sty").value)||0,
+    bd=$("beds").value,ba=parseInt($("baths").value)||0,bu=money($("bu").value),ld=money($("land").value),pmin=money($("pmin").value),pmax=money($("pmax").value),
+    fu=$("furn").value,te=$("ten").value,bm=$("bumi").value,gp=$("grp").value;
+  $("pminl").textContent=sr==="R"?"最低租金 Min rent (RM/月)":"最低价 Min price (RM)";$("pmaxl").textContent=sr==="R"?"最高租金 Max rent (RM/月)":"最高价 Max price (RM)";
+  res=L.filter(function(r){
+    if(sr&&r[1]!==sr&&r[1]!=="B")return false;
+    if(!typeOk(r,ts))return false;
+    if(ar!==""&&r[17]!=+ar)return false;
+    if(sty&&r[3]!==sty)return false;
+    if(bd!==""&&(r[8]<0||r[8]<+bd))return false;
+    if(ba&&r[10]<ba)return false;
+    if(bu&&r[7]<bu)return false;
+    if(ld&&r[6]<ld)return false;
+    var p=price(r,sr);
+    if(pmin&&(!p||p<pmin))return false;
+    if(pmax&&(!p||p>pmax))return false;
+    if(fu&&r[11]!==fu)return false;
+    if(te&&r[12]!==te)return false;
+    if(bm&&r[13]!==bm)return false;
+    if(gp!==""&&r[21]!=+gp&&!r[22].some(function(a){return a[2]==+gp}))return false;
+    if(words.length){var ag=D.agents[r[19]],h=r[25]+" "+(D.areas[r[17]]||"").toLowerCase()+" "+ag[0].toLowerCase()+" "+ag[1]+" "+r[0].toLowerCase();
+      for(var i=0;i<words.length;i++)if(h.indexOf(words[i])<0)return false}
+    return true});
+  var s=$("sort").value;
+  res.sort(function(a,b){
+    if(s==="n")return b[24]-a[24];
+    if(s==="bu")return (b[7]||0)-(a[7]||0);
+    if(s==="ld")return (b[6]||0)-(a[6]||0);
+    if(s==="psf"){return (a[16]||1e9)-(b[16]||1e9)}
+    var pa=price(a,sr)||(s==="pd"?0:1e12),pb=price(b,sr)||(s==="pd"?0:1e12);return s==="pd"?pb-pa:pa-pb});
+  $("cnt").textContent="找到 "+res.length.toLocaleString()+" 个单位 · "+res.length+" found";
+  save();render(false)}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function fmtP(v){return v>=1e6?"RM"+(v/1e6).toFixed(v%1e6?2:0).replace(/\.?0+$/,"")+"mil":"RM"+v.toLocaleString()}
+function wa(ag,r){if(!ag[1])return esc(ag[0]||"?")+" <span class='small'>(无电话 no phone)</span>";
+  var t=encodeURIComponent("Hi "+(ag[0]||"")+", 请问这个单位还有吗? "+(r[18]||D.areas[r[17]]||"")+" "+(r[14]?fmtP(r[14]):"")+(r[15]?" RM"+r[15]+"/月":"")+" ("+r[0]+")");
+  return "<a href='https://wa.me/"+ag[1]+"?text="+t+"' target='_blank' rel='noopener'>"+esc(ag[0]||ag[1])+" · +"+ag[1]+" 💬</a>"}
+function card(r,idx){
+  var t=TY[r[2]],sp=[TZH[t]||t];
+  if(r[3])sp.push(r[3]+" 层 storey");if(r[4])sp.push(/^L/.test(r[4])?"Level "+r[4].slice(1):r[4]+" floor");if(r[5])sp.push(r[5]);
+  if(r[6])sp.push("土地 Land "+r[6].toLocaleString()+" sf");if(r[7])sp.push("屋身 BU "+r[7].toLocaleString()+" sf");
+  if(r[8]>=0)sp.push((r[8]===0&&!r[9]?"Studio":(r[9]||r[8])+" 房")+(r[10]?" "+r[10]+" 厕":""));
+  var sp2=[];if(r[11])sp2.push({F:"全家私 Fully furnished",P:"半家私 Partly furnished",B:"空屋 Bare"}[r[11]]);if(r[12])sp2.push(r[12]==="FH"?"Freehold 永久":"Leasehold 租赁");
+  if(r[13])sp2.push({N:"Non-Bumi / Intl",B:"Bumi lot 土著",M:"Malay Reserve"}[r[13]]);
+  var pr=[];if(r[14])pr.push(fmtP(r[14])+(r[16]?" <small>(RM"+r[16]+" psf)</small>":""));if(r[15])pr.push("租 RM"+r[15].toLocaleString()+"/月");
+  var kind={S:"出售 SALE",R:"出租 RENT",B:"售/租 SALE/RENT"}[r[1]],ag=D.agents[r[19]];
+  var h="<div class='card'><h3><span class='tag t"+r[1]+"'>"+kind+"</span>"+esc(r[18]||D.areas[r[17]]||"(未注明项目)")+"</h3>";
+  if(r[17]>=0)h+="<div class='small'>📍 "+esc(D.areas[r[17]])+"</div>";
+  h+="<div class='spec'>"+esc(sp.join(" · "))+"</div>"+(sp2.length?"<div class='spec'>"+esc(sp2.join(" · "))+"</div>":"");
+  h+="<div class='price'>"+(pr.join(" · ")||"<small>价格未注明 Price n/a</small>")+"</div>";
+  h+="<div class='ag'>👤 最早发布 "+wa(ag,r)+"</div><div class='small'>"+dstr(r[20])+" · "+esc(D.groups[r[21]]||"")+" · 共出现 "+r[23]+" 次 · 最近 "+dstr(r[24])+" · "+r[0]+"</div>";
+  if(r[22].length){h+="<details class='also'><summary>也有发 Also posted by ("+r[22].length+")</summary>";
+    r[22].forEach(function(a){var g=D.agents[a[0]];h+="<div>"+wa(g,r)+" <span class='small'>"+dstr(a[1])+" · "+esc(D.groups[a[2]]||"")+"</span></div>"});h+="</details>"}
+  h+="<button class='rawb' data-i='"+idx+"'>看原文 Original post ▾</button><div class='raw' id='raw"+idx+"' hidden></div></div>";return h}
+function render(more){var el=$("list");if(!more){el.innerHTML="";shown=0}
+  var n=Math.min(res.length,shown+40),h="";for(var i=shown;i<n;i++)h+=card(res[i],i);el.insertAdjacentHTML("beforeend",h);shown=n;
+  var b=$("more");if(b)b.remove();if(!res.length)el.innerHTML="<div class='empty'>没有符合的单位，试试放宽条件 · No match, try fewer filters</div>";
+  if(shown<res.length)el.insertAdjacentHTML("afterend","<button id='more'>加载更多 More ("+(res.length-shown)+")</button>"),$("more").addEventListener("click",function(){render(true)})}
+var rawLoading=null;
+function loadRaw(cb){if(window.RAW)return cb();if(rawLoading){rawLoading.push(cb);return}rawLoading=[cb];var s=document.createElement("script");s.src="raw.js?v="+encodeURIComponent(D.meta.updated);
+  s.onload=function(){rawLoading.forEach(function(f){f()})};document.head.appendChild(s)}
+var IDX={};L.forEach(function(r,i){IDX[r[0]]=i});
+$("list").addEventListener("click",function(e){var b=e.target.closest(".rawb");if(!b)return;var i=+b.dataset.i,box=$("raw"+i);
+  if(!box.hidden){box.hidden=true;b.textContent="看原文 Original post ▾";return}
+  b.textContent="载入中 Loading…";loadRaw(function(){box.textContent=window.RAW[IDX[res[i][0]]]||"";box.hidden=false;b.textContent="收起原文 Hide ▴"})});
+var NUMS=["bu","land","pmin","pmax"],SELS=["area","sty","beds","baths","furn","ten","bumi","grp","sort"];
+function save(){var p=[];if($("q").value)p.push("q="+encodeURIComponent($("q").value));var sr=on("sr")[0];if(sr)p.push("sr="+sr);var ts=on("types");if(ts.length)p.push("ty="+ts.join(","));
+  NUMS.concat(SELS).forEach(function(k){var v=$(k).value;if(v&&!(k==="sort"&&v==="p"))p.push(k+"="+encodeURIComponent(v))});
+  history.replaceState(null,"",p.length?"#"+p.join("&"):location.pathname+location.search)}
+function load(){var h=location.hash.slice(1);if(!h)return;h.split("&").forEach(function(kv){var i=kv.indexOf("="),k=kv.slice(0,i),v=decodeURIComponent(kv.slice(i+1));
+  if(k==="q")$("q").value=v;else if(k==="sr")[].forEach.call($("sr").children,function(c){c.classList.toggle("on",c.dataset.v===v)});
+  else if(k==="ty"){var vs=v.split(",");[].forEach.call($("types").children,function(c){if(vs.indexOf(c.dataset.v)>=0)c.classList.add("on")})}
+  else if($(k))$(k).value=v})}
+document.querySelectorAll(".chips").forEach(function(g){g.addEventListener("click",function(e){var c=e.target.closest(".chip");if(!c)return;c.classList.toggle("on");run()})});
+$("sr").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;[].forEach.call($("sr").children,function(c){c.classList.toggle("on",c===b)});run()});
+$("q").addEventListener("input",function(){clearTimeout(tmr);tmr=setTimeout(run,200)});
+$("q").addEventListener("keydown",function(e){if(e.key==="Enter"){$("q").blur();run()}});
+NUMS.forEach(function(k){$(k).addEventListener("input",function(){clearTimeout(tmr);tmr=setTimeout(run,350)})});
+SELS.forEach(function(k){$(k).addEventListener("change",run)});
+$("tog").addEventListener("click",function(){var p=$("panel");p.classList.toggle("hide");$("tog").textContent=p.classList.contains("hide")?"筛选 ▾":"收起 ▴"});
+$("go").addEventListener("click",function(){$("panel").classList.add("hide");$("tog").textContent="筛选 ▾";run();window.scrollTo({top:0,behavior:"smooth"})});
+$("reset").addEventListener("click",function(){$("q").value="";NUMS.forEach(function(k){$(k).value=""});SELS.forEach(function(k){$(k).selectedIndex=0});
+  document.querySelectorAll(".chip.on").forEach(function(c){c.classList.remove("on")});[].forEach.call($("sr").children,function(c,i){c.classList.toggle("on",i===0)});run()});
+load();run();
+if(location.hash.length>1)$("panel").classList.remove("hide"),$("tog").textContent="收起 ▴";
+})();
+</script>
+</body>
+</html>
