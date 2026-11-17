@@ -56,6 +56,8 @@ header .sub{font-size:13px;opacity:.85;margin-top:3px}
 .also summary{cursor:pointer;color:var(--m)}
 .also div{padding:2px 0}
 .rawb{margin-top:6px;border:0;background:none;color:var(--b);font-size:14px;padding:6px 0;text-decoration:underline}
+.cpb{display:none;margin-top:8px;min-height:44px;padding:10px 18px;border:1px solid var(--b);border-radius:10px;background:#fff;color:var(--b);font-size:15px;font-weight:600;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.cpb.show{display:inline-block}.cpb.ok{background:var(--b);color:#fff}
 .raw{white-space:pre-wrap;font-size:13.5px;background:#f7f9fa;border-radius:8px;padding:8px;margin-top:6px;max-height:420px;overflow:auto;word-break:break-word}
 #more{display:block;margin:10px auto 0;min-height:46px;padding:0 26px;font-size:16px;border-radius:10px;border:1px solid var(--b);background:#fff;color:var(--b)}
 footer{font-size:12.5px;color:var(--m);padding:6px 16px 40px;line-height:1.6}
@@ -178,7 +180,7 @@ function card(r,idx){
   h+="<div class='ag'>👤 最早发布 "+wa(ag,r)+"</div><div class='small'>"+dstr(r[20])+" · "+esc(D.groups[r[21]]||"")+" · 共出现 "+r[23]+" 次 · 最近 "+dstr(r[24])+" · "+r[0]+"</div>";
   if(r[22].length){h+="<details class='also'><summary>也有发 Also posted by ("+r[22].length+")</summary>";
     r[22].forEach(function(a){var g=D.agents[a[0]];h+="<div>"+wa(g,r)+" <span class='small'>"+dstr(a[1])+" · "+esc(D.groups[a[2]]||"")+"</span></div>"});h+="</details>"}
-  h+="<button class='rawb' data-i='"+idx+"'>看原文 Original post ▾</button><div class='raw' id='raw"+idx+"' hidden></div></div>";return h}
+  h+="<button class='rawb' data-i='"+idx+"'>看原文 Original post ▾</button><div class='raw' id='raw"+idx+"' hidden></div><button type='button' class='cpb' id='cp"+idx+"' data-i='"+idx+"'>📋 复制全文 Copy</button></div>";return h}
 function render(more){var el=$("list");if(!more){el.innerHTML="";shown=0}
   var n=Math.min(res.length,shown+40),h="";for(var i=shown;i<n;i++)h+=card(res[i],i);el.insertAdjacentHTML("beforeend",h);shown=n;
   var b=$("more");if(b)b.remove();if(!res.length)el.innerHTML="<div class='empty'>没有符合的单位，试试放宽条件 · No match, try fewer filters</div>";
@@ -187,9 +189,16 @@ var rawLoading=null;
 function loadRaw(cb){if(window.RAW)return cb();if(rawLoading){rawLoading.push(cb);return}rawLoading=[cb];var s=document.createElement("script");s.src="raw.js?v="+encodeURIComponent(D.meta.updated);
   s.onload=function(){rawLoading.forEach(function(f){f()})};document.head.appendChild(s)}
 var IDX={};L.forEach(function(r,i){IDX[r[0]]=i});
-$("list").addEventListener("click",function(e){var b=e.target.closest(".rawb");if(!b)return;var i=+b.dataset.i,box=$("raw"+i);
-  if(!box.hidden){box.hidden=true;b.textContent="看原文 Original post ▾";return}
-  b.textContent="载入中 Loading…";loadRaw(function(){box.textContent=window.RAW[IDX[res[i][0]]]||"";box.hidden=false;b.textContent="收起原文 Hide ▴"})});
+function fallbackCopy(t){var ta=document.createElement("textarea");ta.value=t;ta.setAttribute("readonly","");ta.style.cssText="position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;font-size:16px";
+  document.body.appendChild(ta);ta.focus();ta.select();try{ta.setSelectionRange(0,t.length)}catch(x){}var ok=false;try{ok=document.execCommand("copy")}catch(x){}document.body.removeChild(ta);return ok}
+function copyText(t,done){var fin=false,f=function(ok){if(!fin){fin=true;done(ok)}};
+  if(navigator.clipboard&&navigator.clipboard.writeText&&window.isSecureContext){try{navigator.clipboard.writeText(t).then(function(){f(true)},function(){f(fallbackCopy(t))});setTimeout(function(){f(fallbackCopy(t))},1200)}catch(x){f(fallbackCopy(t))}}else f(fallbackCopy(t))}
+$("list").addEventListener("click",function(e){var c=e.target.closest(".cpb");
+  if(c){var j=+c.dataset.i,t=(window.RAW&&window.RAW[IDX[res[j][0]]])||$("raw"+j).textContent||"";
+    copyText(t,function(ok){c.textContent=ok?"已复制 ✓ Copied":"复制失败 请长按选取 Copy failed";c.classList.toggle("ok",ok);if(!ok){try{var rg=document.createRange();rg.selectNodeContents($("raw"+j));var sl=getSelection();sl.removeAllRanges();sl.addRange(rg)}catch(x){}}clearTimeout(c._t);c._t=setTimeout(function(){c.textContent="📋 复制全文 Copy";c.classList.remove("ok")},2000)});return}
+  var b=e.target.closest(".rawb");if(!b)return;var i=+b.dataset.i,box=$("raw"+i),cp=$("cp"+i);
+  if(!box.hidden){box.hidden=true;cp.classList.remove("show");b.textContent="看原文 Original post ▾";return}
+  b.textContent="载入中 Loading…";loadRaw(function(){box.textContent=window.RAW[IDX[res[i][0]]]||"";box.hidden=false;cp.classList.add("show");b.textContent="收起原文 Hide ▴"})});
 var NUMS=["bu","land","pmin","pmax"],SELS=["area","sty","beds","baths","furn","ten","bumi","grp","sort"];
 function save(){var p=[];if($("q").value)p.push("q="+encodeURIComponent($("q").value));var sr=on("sr")[0];if(sr)p.push("sr="+sr);var ts=on("types");if(ts.length)p.push("ty="+ts.join(","));
   NUMS.concat(SELS).forEach(function(k){var v=$(k).value;if(v&&!(k==="sort"&&v==="p"))p.push(k+"="+encodeURIComponent(v))});
