@@ -161,7 +161,7 @@ function run(){
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function fmtP(v){return v>=1e6?"RM"+(v/1e6).toFixed(v%1e6?2:0).replace(/\.?0+$/,"")+"mil":"RM"+v.toLocaleString()}
 function wa(ag,r){if(!ag[1])return esc(ag[0]||"?")+" <span class='small'>(无电话 no phone)</span>";
-  var t=encodeURIComponent("Hi "+(ag[0]||"")+", 请问这个单位还有吗? "+(r[18]||D.areas[r[17]]||"")+" "+(r[14]?fmtP(r[14]):"")+(r[15]?" RM"+r[15]+"/月":"")+" ("+r[0]+")");
+  var t=encodeURIComponent("Hi "+(ag[0]||"")+", 请问这个单位还有吗? "+(r[18]||D.areas[r[17]]||"")+" "+(r[14]?fmtP(r[14]):"")+(r[15]?" RM"+r[15]+"/月":""));
   return "<a href='https://wa.me/"+ag[1]+"?text="+t+"' target='_blank' rel='noopener'>"+esc(ag[0]||ag[1])+" · +"+ag[1]+" 💬</a>"}
 function card(r,idx){
   var t=TY[r[2]],sp=[TZH[t]||t];
