@@ -176,6 +176,7 @@ function card(r,idx){
   if(r[17]>=0)h+="<div class='small'>📍 "+esc(D.areas[r[17]])+"</div>";
   h+="<div class='spec'>"+esc(sp.join(" · "))+"</div>"+(sp2.length?"<div class='spec'>"+esc(sp2.join(" · "))+"</div>":"");
   h+="<div class='price'>"+(pr.join(" · ")||"<small>价格未注明 Price n/a</small>")+"</div>";
+  if(r[26])h+="<div class='small'>🏠 已有租客 Tenanted · 租金 RM"+r[26].toLocaleString()+"/月 <small>(出售单位，租金仅供参考)</small></div>";
   h+="<div class='ag'>👤 最早发布 "+wa(ag,r)+"</div><div class='small'>"+dstr(r[20])+" · "+esc(D.groups[r[21]]||"")+" · 共出现 "+r[23]+" 次 · 最近 "+dstr(r[24])+" · "+r[0]+"</div>";
   if(r[22].length){h+="<details class='also'><summary>也有发 Also posted by ("+r[22].length+")</summary>";
     r[22].forEach(function(a){var g=D.agents[a[0]];h+="<div>"+wa(g,r)+" <span class='small'>"+dstr(a[1])+" · "+esc(D.groups[a[2]]||"")+"</span></div>"});h+="</details>"}
