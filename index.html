@@ -126,7 +126,7 @@ function typeOk(r,ts){if(!ts.length)return true;var t=TY[r[2]];for(var i=0;i<ts.
   if(v==="ld"&&/terrace|cluster|semi|bungalow|townhouse|land/.test(t))return true;if(v==="terrace"&&t==="terrace")return true;if(v==="cluster"&&t==="cluster")return true;
   if(v==="semi"&&t==="semi-D")return true;if(v==="bung"&&t==="bungalow")return true;if(v==="town"&&t==="townhouse")return true;if(v==="room"&&t==="room")return true}return false}
 function price(r,sr){return sr==="R"?r[15]:sr==="S"?r[14]:(r[14]||r[15])}
-var ABBR={tmn:"taman",tman:"taman",jln:"jalan",jaln:"jalan",bdr:"bandar",bndr:"bandar",kg:"kampung",kpg:"kampung",btk:"bukit",bkt:"bukit"};
+var ABBR={tmn:"taman",tman:"taman",jln:"jalan",jaln:"jalan",bdr:"bandar",bndr:"bandar",kg:"kampung",kpg:"kampung",btk:"bukit",jj:"johor jaya",bkt:"bukit"};
 function norm(s){return " "+String(s||"").toLowerCase().replace(/[\u2018\u2019']/g,"").replace(/[^a-z0-9\u4e00-\u9fff]+/g," ").split(" ").filter(Boolean).map(function(w){return ABBR[w]||w}).join(" ")+" "}
 function qphrases(q){return q.split(/[,;，；]+/).map(function(x){return norm(x)}).filter(function(x){return x.trim()})}
 function tagNames(r){return (r[27]&&r[27].length?r[27]:[r[17]]).map(function(i){return D.areas[i]||""}).filter(Boolean)}
