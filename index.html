@@ -125,8 +125,16 @@ function typeOk(r,ts){if(!ts.length)return true;var t=TY[r[2]];for(var i=0;i<ts.
   if(v==="ld"&&/terrace|cluster|semi|bungalow|townhouse|land/.test(t))return true;if(v==="terrace"&&t==="terrace")return true;if(v==="cluster"&&t==="cluster")return true;
   if(v==="semi"&&t==="semi-D")return true;if(v==="bung"&&t==="bungalow")return true;if(v==="town"&&t==="townhouse")return true;if(v==="room"&&t==="room")return true}return false}
 function price(r,sr){return sr==="R"?r[15]:sr==="S"?r[14]:(r[14]||r[15])}
+var ABBR={tmn:"taman",tman:"taman",jln:"jalan",jaln:"jalan",bdr:"bandar",bndr:"bandar",kg:"kampung",kpg:"kampung",btk:"bukit",bkt:"bukit"};
+function norm(s){return " "+String(s||"").toLowerCase().replace(/[\u2018\u2019']/g,"").replace(/[^a-z0-9\u4e00-\u9fff]+/g," ").split(" ").filter(Boolean).map(function(w){return ABBR[w]||w}).join(" ")+" "}
+function qphrases(q){return q.split(/[,;，；]+/).map(function(x){return norm(x)}).filter(function(x){return x.trim()})}
+function fieldHay(r){if(r.nf===undefined){var ag=D.agents[r[19]];r.nproj=norm(r[18])+"|"+norm(D.areas[r[17]]||"");r.nf=r.nproj+"|"+norm(ag[0])+"|"+norm(ag[1])+"|"+norm(r[0]);r.nk=norm(r[25])}return r}
+function phraseHit(h,ph){return h.indexOf(ph)>=0}
+var rawNorm={};
+function rawHay(r){var i=IDX[r[0]];if(!window.RAW)return null;if(rawNorm[i]===undefined)rawNorm[i]=norm(window.RAW[i]||"");return rawNorm[i]}
+var rawTried=false;
 function run(){
-  var q=$("q").value.trim().toLowerCase(),words=q?q.split(/\s+/):[],sr=on("sr")[0]||"",ts=on("types"),ar=$("area").value,sty=parseFloat($("sty").value)||0,
+  var q=$("q").value.trim().toLowerCase(),words=qphrases(q),sr=on("sr")[0]||"",ts=on("types"),ar=$("area").value,sty=parseFloat($("sty").value)||0,
     bd=$("beds").value,ba=parseInt($("baths").value)||0,bu=money($("bu").value),ld=money($("land").value),pmin=money($("pmin").value),pmax=money($("pmax").value),
     fu=$("furn").value,te=$("ten").value,bm=$("bumi").value,gp=$("grp").value;
   $("pminl").textContent=sr==="R"?"最低租金 Min rent (RM/月)":"最低价 Min price (RM)";$("pmaxl").textContent=sr==="R"?"最高租金 Max rent (RM/月)":"最高价 Max price (RM)";
@@ -146,11 +154,20 @@ function run(){
     if(te&&r[12]!==te)return false;
     if(bm&&r[13]!==bm)return false;
     if(gp!==""&&r[21]!=+gp&&!r[22].some(function(a){return a[2]==+gp}))return false;
-    if(words.length){var ag=D.agents[r[19]],h=r[25]+" "+(D.areas[r[17]]||"").toLowerCase()+" "+ag[0].toLowerCase()+" "+ag[1]+" "+r[0].toLowerCase();
-      for(var i=0;i<words.length;i++)if(h.indexOf(words[i])<0)return false}
     return true});
+  if(words.length){
+    // phrase search: every comma-separated phrase must appear as a CONTIGUOUS phrase (abbreviations normalised: tmn=taman, jln=jalan, bdr=bandar)
+    // stage 1: project / area / agent fields; stage 2 (only if stage 1 is empty): the post's title lines; stage 3 (only if still empty): the full original text
+    var st1=res.filter(function(r){fieldHay(r);return words.every(function(ph){return phraseHit(r.nf,ph)})});
+    if(st1.length){res=st1;res.forEach(function(r){r.rk=words.every(function(ph){return phraseHit(r.nproj,ph)})?0:1})}
+    else{var st2=res.filter(function(r){fieldHay(r);return words.every(function(ph){return phraseHit(r.nf,ph)||phraseHit(r.nk,ph)})});
+      if(st2.length){res=st2;res.forEach(function(r){r.rk=0})}
+      else if(window.RAW){res=res.filter(function(r){var h=rawHay(r);return h&&words.every(function(ph){return phraseHit(h,ph)})});res.forEach(function(r){r.rk=0})}
+      else{var again=res;res=[];loadRaw(function(){run()})}}
+  }else res.forEach(function(r){r.rk=0});
   var s=$("sort").value;
   res.sort(function(a,b){
+    if((a.rk||0)!==(b.rk||0))return (a.rk||0)-(b.rk||0);
     if(s==="n")return b[24]-a[24];
     if(s==="bu")return (b[7]||0)-(a[7]||0);
     if(s==="ld")return (b[6]||0)-(a[6]||0);
