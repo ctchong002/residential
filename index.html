@@ -114,7 +114,8 @@ var D=window.RES,L=D.L,$=function(i){return document.getElementById(i)},tmr,show
 var BASE=Date.UTC(2026,0,1);
 function dstr(d){var x=new Date(BASE+d*864e5);return x.getUTCDate()+"/"+(x.getUTCMonth()+1)+"/"+String(x.getUTCFullYear()).slice(2)}
 var TY=D.types,HR={0:1,1:1,2:1,3:1,4:1,5:1,6:1},TZH={"condo":"公寓 Condo","serviced apartment":"服务式公寓 Serviced Apt","apartment":"Apartment","flat":"组屋 Flat","penthouse":"Penthouse","duplex/loft":"Duplex/Loft","highrise (unspecified)":"高楼 Highrise","terrace":"排屋 Terrace","cluster":"田字 Cluster","semi-D":"半独立 Semi-D","bungalow":"独立 Bungalow","townhouse":"Townhouse","residential land":"住宅地 Res. land","room":"房间 Room","":"住宅"};
-D.areas.forEach(function(a,i){var o=document.createElement("option");o.value=i;o.textContent=a;$("area").appendChild(o)});
+var AC={};L.forEach(function(r){(r[27]&&r[27].length?r[27]:[r[17]]).forEach(function(i){AC[i]=(AC[i]||0)+1})});
+D.areas.forEach(function(a,i){if((AC[i]||0)<5)return;var o=document.createElement("option");o.value=i;o.textContent=a;$("area").appendChild(o)});
 D.groups.forEach(function(g,i){var o=document.createElement("option");o.value=i;o.textContent=g;$("grp").appendChild(o)});
 $("sub").textContent="新山住宅盘源 · "+D.meta.n.toLocaleString()+" 个单位(已去重) · "+D.meta.since.split("-").reverse().join("/")+" – "+(D.meta.last||"").split("-").reverse().join("/");
 $("foot").innerHTML="资料来源 Source: 合作群 WhatsApp co-broke groups ("+D.groups.join(", ")+")，"+D.meta.since+" 至 "+D.meta.last+"。95% 相同的单位已合并，显示最早发布的 agent，其余列在「也有发 Also posted by」。价格 / 资料以 agent 原文为准，请直接联系 agent 确认。 Prices &amp; details as posted by agents — please verify with the agent. 更新 Updated: "+D.meta.updated+" · The Roof Realty / The Pillars Group";
@@ -128,10 +129,23 @@ function price(r,sr){return sr==="R"?r[15]:sr==="S"?r[14]:(r[14]||r[15])}
 var ABBR={tmn:"taman",tman:"taman",jln:"jalan",jaln:"jalan",bdr:"bandar",bndr:"bandar",kg:"kampung",kpg:"kampung",btk:"bukit",bkt:"bukit"};
 function norm(s){return " "+String(s||"").toLowerCase().replace(/[\u2018\u2019']/g,"").replace(/[^a-z0-9\u4e00-\u9fff]+/g," ").split(" ").filter(Boolean).map(function(w){return ABBR[w]||w}).join(" ")+" "}
 function qphrases(q){return q.split(/[,;，；]+/).map(function(x){return norm(x)}).filter(function(x){return x.trim()})}
-function fieldHay(r){if(r.nf===undefined){var ag=D.agents[r[19]];r.nproj=norm(r[18])+"|"+norm(D.areas[r[17]]||"");r.nf=r.nproj+"|"+norm(ag[0])+"|"+norm(ag[1])+"|"+norm(r[0]);r.nk=norm(r[25])}return r}
+function tagNames(r){return (r[27]&&r[27].length?r[27]:[r[17]]).map(function(i){return D.areas[i]||""}).filter(Boolean)}
+function fieldHay(r){if(r.nf===undefined){var ag=D.agents[r[19]];r.nproj=norm(r[18])+"|"+tagNames(r).map(norm).join("|");r.nf=r.nproj+"|"+norm(ag[0])+"|"+norm(ag[1])+"|"+norm(r[0]);r.nk=norm(r[25])}return r}
 function phraseHit(h,ph){return h.indexOf(ph)>=0}
 var rawNorm={};
-function rawHay(r){var i=IDX[r[0]];if(!window.RAW)return null;if(rawNorm[i]===undefined)rawNorm[i]=norm(window.RAW[i]||"");return rawNorm[i]}
+var NB_RX=/(^|[^a-z])(?:nearby|near\s*by|near(?:est)?(?:\s+to)?|close\s+to|closed\s+to|next\s+to|beside|opposite|opp\.?|adjacent(?:\s+to)?|adjoining|surrounded?\s+by|surroundings?|walking\s+distance|walk(?:able)?\s+to|steps?\s+to|(?:easy\s+)?access\s+to|minutes?\s+(?:to|from|away|drive|walk)|mins?\s+(?:to|from|away|drive|walk)|\d+(?:\.\d+)?\s*(?:km|kilometers?|mins?|minutes?)(?![a-z])|just\s+\d+\s*(?:min|km)|drive\s+to|view\s+of|close\s+by)(?![a-z])|附近|靠近|旁边|隔壁|对面|步行|距离|分钟|公里|周边|周围|邻近|临近|紧邻|毗邻/i,NB_HEAD=/^[^A-Za-z0-9\u4e00-\u9fff]*(?:nearby|near\s*by|near|surroundings?|around|facilities|amenities|distance|附近|周边|周围|附近设施|生活配套|配套)(?:\s+(?:amenities|facilities|places|place|attractions|landmarks|area|areas|convenience|location|info|information|of interest|around|the area|设施|地点))*[^A-Za-z0-9\u4e00-\u9fff]*(?:[:：][^\n]{0,40})?$/i,NB_STOP=/\brm\s?\d|\d\s?(?:k|mil)\b|for\s*sale|for\s*rent|\bbed|\bbath|sq\s?ft|\bsqf|freehold|leasehold|furnish|wa\.me|wasap|\+?60\d{8}|tenure|出售|出租|售价|租金/i,NB_AMEN=/\baeon\b|\blotus'?s?\b|\bgiant\b|\bmydin\b|econsave|hospital|\bschools?\b|sekolah|\bcollege\b|\bmall\b|商场|超市|学校|医院|\btesco\b|\bsupermarket\b|\bsmk\b|\bsjk\b|\bmrt\b|\blrt\b|\bkfc\b|\bmcd\b|\bpetronas\b|\bhighway\b|\blebuhraya\b|\bsingapore\b|\bcustoms\b/i;
+// "nearby ..." content (near / beside / 5 mins to / 附近 ...) is never searched: same rules as search.py and the area assignment
+function stripNearby(t){var out=[],skip=false,ns=0,idx=0,ls=String(t).split("\n");
+  for(var i=0;i<ls.length;i++){var l=ls[i];
+    if(skip){if(!l.trim()&&ns===0)continue;if(!l.trim()||NB_STOP.test(l)||ns>=14)skip=false;else{ns++;continue}}
+    if(l.trim()&&NB_HEAD.test(l.trim())){skip=true;ns=0;continue}
+    if(l.trim())idx++;
+    var m=NB_RX.exec(l);
+    if(m){l=l.slice(0,m.index+(m[1]?m[1].length:0)).replace(/[\s\-–—:：,;|@(（\[]+$/,"");if(!/[A-Za-z\u4e00-\u9fff]/.test(l))continue}
+    else if(idx>4&&NB_AMEN.test(l)&&!NB_STOP.test(l))continue;
+    out.push(l)}
+  return out.join("\n")}
+function rawHay(r){var i=IDX[r[0]];if(!window.RAW)return null;if(rawNorm[i]===undefined)rawNorm[i]=norm(stripNearby(window.RAW[i]||""));return rawNorm[i]}
 var rawTried=false;
 function run(){
   var q=$("q").value.trim().toLowerCase(),words=qphrases(q),sr=on("sr")[0]||"",ts=on("types"),ar=$("area").value,sty=parseFloat($("sty").value)||0,
@@ -141,7 +155,7 @@ function run(){
   res=L.filter(function(r){
     if(sr&&r[1]!==sr&&r[1]!=="B")return false;
     if(!typeOk(r,ts))return false;
-    if(ar!==""&&r[17]!=+ar)return false;
+    if(ar!==""&&(r[27]&&r[27].length?r[27].indexOf(+ar)<0:r[17]!=+ar))return false;
     if(sty&&r[3]!==sty)return false;
     if(bd!==""&&(r[8]<0||r[8]<+bd))return false;
     if(ba&&r[10]<ba)return false;
@@ -190,7 +204,7 @@ function card(r,idx){
   var pr=[];if(r[14])pr.push(fmtP(r[14])+(r[16]?" <small>(RM"+r[16]+" psf)</small>":""));if(r[15])pr.push("租 RM"+r[15].toLocaleString()+"/月");
   var kind={S:"出售 SALE",R:"出租 RENT",B:"售/租 SALE/RENT"}[r[1]],ag=D.agents[r[19]];
   var h="<div class='card'><h3><span class='tag t"+r[1]+"'>"+kind+"</span>"+esc(r[18]||D.areas[r[17]]||"(未注明项目)")+"</h3>";
-  if(r[17]>=0)h+="<div class='small'>📍 "+esc(D.areas[r[17]])+"</div>";
+  if(r[17]>=0)h+="<div class='small'>📍 "+esc(tagNames(r).join(" · "))+"</div>";
   h+="<div class='spec'>"+esc(sp.join(" · "))+"</div>"+(sp2.length?"<div class='spec'>"+esc(sp2.join(" · "))+"</div>":"");
   h+="<div class='price'>"+(pr.join(" · ")||"<small>价格未注明 Price n/a</small>")+"</div>";
   if(r[26])h+="<div class='small'>🏠 已有租客 Tenanted · 租金 RM"+r[26].toLocaleString()+"/月 <small>(出售单位，租金仅供参考)</small></div>";
