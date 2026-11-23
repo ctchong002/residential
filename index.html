@@ -172,13 +172,14 @@ function run(){
     return true});
   if(words.length){
     // phrase search: every comma-separated phrase must appear as a CONTIGUOUS phrase (abbreviations normalised: tmn=taman, jln=jalan, bdr=bandar)
-    // stage 1: project / area / agent fields; stage 2 (only if stage 1 is empty): the post's title lines; stage 3 (only if still empty): the full original text
-    var st1=res.filter(function(r){fieldHay(r);return words.every(function(ph){return phraseHit(r.nf,ph)})});
+    // stage 1: project / area tags / agent / id, OR the listing's title-line keyword field (r[25]).
+    // Title-line matches stay visible even when other listings already hit on the project field
+    // (owner, 23 Nov 2026: a landed post that names a taman must come up when an agent types that keyword).
+    // stage 2 (only if stage 1 is empty): the full original text (nearby-lines already stripped)
+    var st1=res.filter(function(r){fieldHay(r);return words.every(function(ph){return phraseHit(r.nf,ph)||phraseHit(r.nk,ph)})});
     if(st1.length){res=st1;res.forEach(function(r){r.rk=words.every(function(ph){return phraseHit(r.nproj,ph)})?0:1})}
-    else{var st2=res.filter(function(r){fieldHay(r);return words.every(function(ph){return phraseHit(r.nf,ph)||phraseHit(r.nk,ph)})});
-      if(st2.length){res=st2;res.forEach(function(r){r.rk=0})}
-      else if(window.RAW){res=res.filter(function(r){var h=rawHay(r);return h&&words.every(function(ph){return phraseHit(h,ph)})});res.forEach(function(r){r.rk=0})}
-      else{var again=res;res=[];loadRaw(function(){run()})}}
+    else if(window.RAW){res=res.filter(function(r){var h=rawHay(r);return h&&words.every(function(ph){return phraseHit(h,ph)})});res.forEach(function(r){r.rk=0})}
+    else{res=[];loadRaw(function(){run()})}
   }else res.forEach(function(r){r.rk=0});
   var s=$("sort").value;
   res.sort(function(a,b){
